@@ -1,0 +1,82 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Informe Moogle!}
+\author{Reynol Gomez Franco C121}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{{\Huge Clase BaseDeDatos}}
+
+La clase \texttt{BaseDeDatos} contiene varios campos y métodos para cargar, procesar y almacenar información de documentos. A continuación, se describen los campos y métodos de la clase:
+
+\begin{itemize}
+
+\item \texttt{separadores}: un arreglo de cadenas que contiene los caracteres que se utilizarán para separar las palabras en los documentos.
+\item \texttt{TFIDF}: un diccionario de diccionarios que contiene los valores de TF-IDF para cada palabra en cada documento.
+\item \texttt{tf}: un diccionario de diccionarios que contiene los valores de TF para cada palabra en cada documento.
+\item \texttt{idf}: un diccionario que contiene los valores de IDF para cada palabra en todos los documentos.
+\item \texttt{words}: una lista de todas las palabras únicas en todos los documentos.
+\item \texttt{VectorsDocument}: un diccionario que contiene los vectores de documentos para cada documento.
+
+\end{itemize}
+
+\section{Metodo TFIDF()}
+
+La clase tiene un constructor que inicializa los campos \texttt{TFIDF}, \texttt{tf}, \texttt{idf}, \texttt{words} y \texttt{VectorsDocument}. El método \texttt{Load()} carga los documentos de un directorio y calcula los valores de TF e IDF para cada palabra en cada documento. El método \texttt{TF()} devuelve el diccionario de TF para todos los documentos. El método \texttt{IDF()} devuelve el diccionario de IDF para todas las palabras en todos los documentos. El método \texttt{VectorDocument()} calcula los vectores de documentos para cada documento.
+
+
+Para calcular el TF-IDF primero se carga en una lista el nombre de todos los documentos con el método \texttt{GetFiles()} (tiene predeterminada mi ruta). Luego, se itera por dicha lista convirtiendo cada texto en un string a través de \texttt{File.ReadAllText()} y se realiza un segundo bucle para iterar por las palabras de cada texto usando el método \texttt{.Split(separadores)}. A partir de aquí, se quiere sacar la mayor cantidad de información posible, por lo que se crea un diccionario \texttt{wordfordocument} con el objetivo de saber en cuántos documentos está una palabra, lo cual nos servirá más adelante para calcular el IDF. Asimismo, se crea un diccionario de frecuencias para saber cuántas veces aparece una palabra en un documento y luego se añade al diccionario \texttt{TF} una llave documento y la frecuencia de cada palabra en ese documento. Ahora tenemos un diccionario \texttt{wordfordocument} que contiene en cuántos documentos está una palabra, y un diccionario \texttt{TF} con la frecuencia de cada palabra en cada documento. A partir de esto, calculamos el IDF con el logaritmo en base 10 de la división de la cantidad total de documentos sobre la cantidad de documentos en los que se encuentra una palabra. Además, el TF se calcula dividiendo la frecuencia de la palabra en el documento sobre la frecuencia de la palabra con mayor frecuencia. Por problemas de optimización y para tratar de hacer la mayor cantidad de cosas en las menos iteraciones posibles, tenemos dos diccionarios en el mismo método, y solo puedo devolver un tipo, por lo que decidí devolver un diccionario que almacene los dos diccionarios para luego separarlos en el constructor.
+
+\section{Método Vectores()}
+
+Para crear los vectores de cada documento, se itera por cada documento y por la lista de palabras totales de todos los documentos. Si el documento contiene la palabra, se coloca el valor TF-IDF en esa posición, si no la contiene, se coloca 0.
+
+\section{{\Huge Clase Query}}
+
+La clase \texttt{Query} tiene dos campos públicos: \texttt{words} y \texttt{TFquery}. El constructor de la clase toma una cadena de consulta como entrada y la convierte en una lista de palabras en minúsculas utilizando el método \texttt{Split} de la clase \texttt{string}. El constructor también llama al método text
+
+tt{TF()} para calcular la frecuencia de término (TF) de cada palabra en la consulta y almacenarla en el campo \texttt{TFquery}.
+
+El método \texttt{TF()} es un método privado que toma la lista de palabras de la consulta y calcula la frecuencia de cada palabra en la lista. El método utiliza un diccionario \texttt{frecuencias} para almacenar la frecuencia de cada palabra y luego calcula la frecuencia de término (TF) de cada palabra dividiendo su frecuencia por la frecuencia máxima de cualquier palabra en la lista. El método devuelve un diccionario \texttt{tf} que contiene la frecuencia de término de cada palabra en la lista.
+
+\section{ {\Huge Clase ModeloVectorial}}
+
+La clase \texttt{ModeloVectorial} representa un modelo vectorial utilizado en la recuperación de información. Esta clase tiene varios campos y métodos que se utilizan para calcular la similitud entre un conjunto de documentos y una consulta.
+
+item \texttt{documents}: un objeto de la clase \texttt{BaseDeDatos} que representa una colección de documentos.
+item \texttt{query}: un objeto de la clase \texttt{Query} que representa una consulta.
+item \texttt{VectorQuery}: un arreglo de tipo \texttt{double} que representa el vector de consulta.
+item \texttt{Score}: un diccionario que almacena los puntajes de similitud entre los documentos y la consulta.
+item \texttt{MoreFrequency}: una lista que almacena las palabras más frecuentes en los documentos.
+end{itemize}
+
+El constructor de la clase \texttt{ModeloVectorial} toma dos parámetros: un objeto de la clase \texttt{BaseDeDatos} y un objeto de la clase \texttt{Query}. Este constructor inicializa los campos \texttt{documents}, \texttt{query}, \texttt{VectorQuery}, \texttt{Score} y \texttt{MoreFrequency} utilizando los métodos \texttt{VectorsQuery()}, \texttt{Scores()} y \texttt{MoreFrequencyDocuments()}.
+
+El método \texttt{VectorsQuery()} calcula el vector de consulta utilizando la frecuencia de términos de la consulta previamente calculada en la clase \texttt{Query} y el valor IDF (Inverse Document Frequency) de cada término en la colección de documentos.
+
+El método \texttt{Scores()} calcula los puntajes de similitud entre los documentos y la consulta utilizando el método \texttt{Similitud()}.
+
+Los métodos \texttt{Normalizar()}, \texttt{Multiplicar()} y \texttt{Similitud()} son métodos auxiliares que se utilizan para calcular la similitud entre dos vectores.
+
+\section{Método MoreFrequencyDocuments()}
+
+El método \texttt{MoreFrequencyDocuments()} devuelve una lista de las palabras más frecuentes en los documentos. Este método ordena el diccionario \texttt{frecuencias} por valor de forma descendente, toma las cinco primeras palabras del diccionario ordenado y crea una lista con las palabras más frecuentes.
+
+\section{Método VectorQuery()}
+
+El objetivo de crear el \texttt{VectorQuery} es calcular la similitud de este con los vectores documentos y así devolver los cinco documentos que más se asemejen a la consulta. Para crear este vector, iteramos por la lista de palabras \texttt{words} y si la consulta contiene la palabra, le añadimos su valor TF-IDF en esa posición; de otra manera, se inserta un 0.
+
+\section{Método Similitud()}
+
+Para crear el diccionario \texttt{Score} que almacena el nombre del documento y su nivel de importancia con respecto a la consulta, iteramos por el diccionario \texttt{VectorsDocument} y hallamos la similitud de cosenos de cada vector documento con el vector de la consulta. Luego, extraemos una lista \texttt{MoreFrequencyDocuments} con los cinco primeros documentos del diccionario.
+
+\section{{\Huge Clase Moogle}}
+
+En la clase \texttt{Moogle}, se crea una instancia de la clase \texttt{ModeloVectorial} y se le pasa como parámetro las dos instancias de \texttt{BaseDeDatos} y de \texttt{Query}, y se devuelve la lista con los cinco primeros documentos.
+
+
+\end{document}
